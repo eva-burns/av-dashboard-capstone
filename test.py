@@ -1,3 +1,3 @@
 print("hello world")
 
-print("New edit")
+print("New")
