@@ -11,7 +11,7 @@ To get most recent changes:
 `git pull`
 
 To commit your changes: 
-`git add`
+`git add .`
 `git commit -m "message here"`
 
 To add changes to collective repository:
