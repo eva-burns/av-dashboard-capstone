@@ -15,7 +15,7 @@ To navigate to your personal branch:
 
 To get most recent changes: 
 
-`git pull main`
+`git pull origin main`
 
 To commit your changes: 
 
