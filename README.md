@@ -4,7 +4,7 @@
 
 `pip install streamlit`
 
-`streamlit run dashboard.py`
+`streamlit run test.py`
 
 ## Pipeline to pull and add code:
 To navigate to your personal branch:
