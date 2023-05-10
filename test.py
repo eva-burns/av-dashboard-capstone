@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 import os
+from datetime import datetime
 
 st.set_page_config(layout="wide")
 st.title('Sample AV Dashboard')
@@ -37,23 +38,31 @@ def load_data():
 
     df = pd.merge(df, vel_df, on='Time')
     df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN],unit='s')
-    # vel_df[DATE_COLUMN] = pd.to_datetime(vel_df[DATE_COLUMN],unit='s')
-    df['Date of Trip'] = df[DATE_COLUMN].dt.normalize()
+
+    df = df.sort_values(by=['Time'], ignore_index=True)
+    
     return df
 
 data = load_data()
 
-# st.subheader('Map of all pickups at %s:00' % hour_to_filter)
+@st.cache_data
+def get_trip_choices():
+    return sorted(list(set(data['trip number'])))
 
+date_choices = get_trip_choices()
+
+def trip_formatter(trip_num):
+    date = list(data.loc[data['trip number'] == trip_num,'Time'])[0].floor('s')
+    new_str = f'Trip {trip_num} ({date})'
+    return new_str
 
 col1, col2 = st.columns([3, 1])
 
 
 with st.sidebar:
-    date_choices = list(set(data['trip number']))
     # date_choices = pd.DataFrame(date_choices)
     # date_choices['Date'] = [df['Date'][0] for df in ]
-    selectbox_state = st.multiselect("Choose a date", date_choices, date_choices)
+    selectbox_state = st.multiselect("Choose a date", date_choices,  date_choices, format_func=trip_formatter)
     if len(selectbox_state) == 0:
         filtered_data = data.copy()
         st.write("Please enter trip number")
@@ -85,4 +94,3 @@ with col1:
 with col2:
     st.metric(label="Average Velocity", value=round(np.mean(filtered_data['data']), 4))
     
-    st.write(data)
