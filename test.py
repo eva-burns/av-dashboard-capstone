@@ -18,6 +18,7 @@ def load_data():
     dirnames = sorted(dirnames)
     gps_files = [f'./Data/{dir}/gps.csv' for dir in f]
     velocity_files = [f'./Data/{dir}/velocity.csv' for dir in f]
+    mode_files = [f'./Data/{dir}/vehiclemode.csv' for dir in f]
 
     df = pd.DataFrame()
     i = 1
@@ -28,6 +29,16 @@ def load_data():
         i += 1
     df['Time'] = df['Time'].round(3)
 
+    mode_df = pd.DataFrame()
+    i = 1
+    for file in mode_files:
+        temp_df = pd.read_csv(file)[['Time', 'data']]
+        mode_df = pd.concat([mode_df, temp_df], axis=0)
+        i += 1
+    mode_df.rename(columns={'data': 'mode'}, inplace=True)
+    mode_df['Time'] = mode_df['Time'].round(3)
+    df = pd.merge(df, mode_df, on='Time')
+
     vel_df = pd.DataFrame()
     i = 1
     for file in velocity_files:
@@ -35,8 +46,9 @@ def load_data():
         vel_df = pd.concat([vel_df, temp_df], axis=0)
         i += 1
     vel_df['Time'] = vel_df['Time'].round(3)
-
+    vel_df.rename(columns={'data': 'velocity'}, inplace=True)
     df = pd.merge(df, vel_df, on='Time')
+
     df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN],unit='s')
 
     df = df.sort_values(by=['Time'], ignore_index=True)
@@ -60,8 +72,7 @@ col1, col2 = st.columns([3, 1])
 
 
 with st.sidebar:
-    # date_choices = pd.DataFrame(date_choices)
-    # date_choices['Date'] = [df['Date'][0] for df in ]
+    
     selectbox_state = st.multiselect("Choose a date", date_choices,  date_choices, format_func=trip_formatter)
     if len(selectbox_state) == 0:
         filtered_data = data.copy()
@@ -92,5 +103,7 @@ with col1:
     ))
 
 with col2:
-    st.metric(label="Average Velocity", value=round(np.mean(filtered_data['data']), 4))
+    st.metric(label="Average Velocity", value=round(np.mean(filtered_data['velocity']), 4))
+
+    st.write(data)
     
