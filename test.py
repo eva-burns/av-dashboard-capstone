@@ -15,7 +15,7 @@ def load_data():
     w = os.walk("./Data")
     for (dirpath, dirnames, filenames) in w:
         f.extend(dirnames)
-
+    dirnames = sorted(dirnames)
     gps_files = [f'./Data/{dir}/gps.csv' for dir in f]
     velocity_files = [f'./Data/{dir}/velocity.csv' for dir in f]
 
