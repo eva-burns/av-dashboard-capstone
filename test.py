@@ -50,22 +50,20 @@ def load_data():
     vel_df['Timestamp'] = vel_df['Time'].copy()
     vel_df['Time'] = vel_df['Time'].round(3)
 
-    vel_df = vel_df.groupby('Time').agg({'latitude':'mean', 'longitude':'mean', 'altitude':'mean', 'trip number': 'min', 'mode':'min', 'velocity':'mean', 'Timestamp':'mean'})
-
     vel_df.rename(columns={'data': 'velocity'}, inplace=True)
     df = pd.merge(df, vel_df, on='Time')
     
     df[DATE_COLUMN] = pd.to_datetime(df[DATE_COLUMN],unit='s')
 
-    df = df.sort_values(by=['Time'], ignore_index=True)
+    df = df.sort_values(by=['Timestamp'], ignore_index=True)
+
+    df = df.groupby(['Timestamp', 'trip number']).agg({'latitude':'mean', 'longitude':'mean', 'altitude':'mean', 'mode':'min', 'velocity':'mean', 'Time':'min'})
 
     df.reset_index(inplace=True)
     df['Date'] = df['Time'].apply(lambda x: x.strftime('%Y-%m-%d'))
 
     unique_times = df['Date'].unique()
     unique_times = dict(zip(unique_times,list(range(1, len(unique_times)+1))))
-
-    # df['trip number'] = df['Time'].apply(lambda x: unique_times[x.strftime('%Y-%m-%d')])
     
     
     return df
@@ -79,7 +77,7 @@ def get_trip_choices():
 date_choices = get_trip_choices()
 
 def trip_formatter(trip_num):
-    date = data[data['trip number'] == 1]['Date'].head(1)[0]
+    date = str(data[data['trip number'] == trip_num].reset_index().loc[0, 'Date'])
     new_str = f'Trip {trip_num} ({date})'
     return new_str
 
@@ -108,7 +106,7 @@ col1, col2 = st.columns([3, 1])
 # st.pydeck_chart(r)
 
 with st.sidebar:
-    selectbox_state = st.multiselect("Choose a date", date_choices,  default=date_choices[10], format_func=trip_formatter,)
+    selectbox_state = st.multiselect("Choose a date", date_choices,  default=date_choices[0], format_func=trip_formatter)
     if len(selectbox_state) == 0:
         filtered_data = data.copy()
         st.write("Please enter trip number")
