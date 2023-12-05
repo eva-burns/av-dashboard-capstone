@@ -2,9 +2,9 @@
 
 ## To run dashboard:
 
-`pip install streamlit`
+`pip install -r requirements.txt`
 
-`streamlit run test.py`
+`streamlit run app.py`
 
 ## Pipeline to pull and add code:
 To navigate to your personal branch:
